@@ -65,13 +65,14 @@ jobs:
           # Retrieve the Azure region in which this workflow is running. This region should be used to create addtional resources.
           $hostInfo = curl -H Metadata:true "169.254.169.254/metadata/instance?api-version=2017-08-01" | ConvertFrom-Json
           $region = $hostInfo.compute.location
-          echo "region: $region"
           
           $rgName = "test"
+          echo "::set-output name=rgName::$rgName"
           $rand = Get-Random
           $accountname = "pswabs$($rand)"
-          $storageAccount = az storage account create --name $accountname --resource-group $rgName --sku Standard_LRS | ConvertFrom-Json
-          $keys = az storage account keys list --acount-name $accountname --resource-group $rgName | ConvertFrom-Json
+          echo "::set-output name=accountname::$accountname"
+          $storageAccount = az storage account create --location $region --name $accountname --resource-group $rgName --sku Standard_LRS | ConvertFrom-Json
+          $keys = az storage account keys list --account-name $accountname --resource-group $rgName | ConvertFrom-Json
           $key = $keys[0].value
           echo "::add-mask::$key"
           
